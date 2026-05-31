@@ -259,4 +259,32 @@ downloadActivityReport() {
 
 }
 
+export async function updateAsset(
+  assetNumber,
+  updates
+) {
+
+  try {
+
+    const response =
+      await apiClient.put(
+        `/assets/${assetNumber}`,
+        updates
+      );
+
+    return response.data;
+
+  } catch (error) {
+
+    throw (
+      error.response?.data || {
+        message:
+          'Failed to update asset',
+      }
+    );
+
+  }
+
+}
+
 export default apiClient;

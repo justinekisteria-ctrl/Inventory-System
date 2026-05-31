@@ -278,6 +278,12 @@ async function generateActivityExcel(
     },
 
     {
+      header: 'Changes',
+      key: 'changes',
+      width: 60,
+    },
+
+    {
       header: 'Date',
       key: 'date',
       width: 20,
@@ -329,6 +335,12 @@ async function generateActivityExcel(
 
       scanMethod:
         item.scanMethod || 'QR',
+
+        changes:
+  item.changes?.map(
+    change =>
+      `${change.field}: ${change.oldValue || 'Empty'} → ${change.newValue || 'Empty'}`
+  ).join(' | ') || '',
 
       date:
         scanDate.toLocaleDateString(),

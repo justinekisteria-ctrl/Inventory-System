@@ -72,36 +72,31 @@ router.get(
         getCurrentBatch();
 
       const history =
-        getActivityHistory().filter(
-          item =>
-            item.batchId ===
-            currentBatch.batchId
-        );
+  getActivityHistory().filter(
+    item =>
+      item.scanMethod === 'EDIT' ||
+      item.batchId === currentBatch.batchId
+  );
 
       const excelBuffer =
         await generateActivityExcel(
           history
         );
 
-      const uploadDate =
-  new Date(
-    currentBatch.uploadedAt
-  );
+      const now = new Date();
 
-const formattedDate =
-  uploadDate.toLocaleDateString(
+const monthYear =
+  now.toLocaleDateString(
     'en-US',
     {
       month: 'long',
-      day: '2-digit',
       year: 'numeric',
     }
   )
-  .replace(',', '')
-  .replace(/\s+/g, '-');
+  .replace(',', '');
 
 const filename =
-  `Activity-Report-${formattedDate}.xlsx`;
+  `Activity-History-${monthYear}.xlsx`;
 
       res.setHeader(
         'Content-Type',

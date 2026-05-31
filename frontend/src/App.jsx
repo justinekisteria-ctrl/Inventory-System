@@ -1204,19 +1204,20 @@ const getDropdownOptions = (header) => {
         {/* ADMIN */}
         {isAdmin ? (
           <AdminDashboard
-            assets={assets}
-            headers={headers}
-            scannedAssets={scannedAssets}
-            isLoading={isLoading}
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-            onScanSuccess={handleScanSuccess}
-            onScanError={handleScanError}
-            onDownload={handleDownload}
-            isDownloading={isDownloading}
-            onClearAssets={handleClearAssets}
-            isClearing={isClearing}
-          />
+  assets={assets}
+  headers={headers}
+  scannedAssets={scannedAssets}
+  isLoading={isLoading}
+  onUploadSuccess={handleUploadSuccess}
+  onUploadError={handleUploadError}
+  onScanSuccess={handleScanSuccess}
+  onScanError={handleScanError}
+  onDownload={handleDownload}
+  isDownloading={isDownloading}
+  onClearAssets={handleClearAssets}
+  isClearing={isClearing}
+  onRefreshAssets={loadAssets}
+/>
         ) : (
 
           /* USER VIEW */

@@ -15,6 +15,7 @@ router.get('/', (req, res) => {
 const history =
   getActivityHistory().filter(
     item =>
+      item.scanMethod === 'EDIT' ||
       item.batchId ===
       currentBatch.batchId
   );

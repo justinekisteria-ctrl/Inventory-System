@@ -5,7 +5,10 @@ import scanIcon from "../assets/icons/scan.svg";
 import usersIcon from "../assets/icons/users.svg";
 import activityIcon from "../assets/icons/activity.svg";
 import homeIcon from "../assets/icons/home.svg";
-import { fetchActivityHistory } from "../services/api";
+import {
+  fetchActivityHistory,
+  updateAsset,
+} from "../services/api";
 import companyLogo from "../assets/logo.jpg";
 
 import UploadForm from "../components/UploadForm";
@@ -14,6 +17,7 @@ import UserManagement from "../components/UserManagement";
 import AssetTable from "../components/AssetTable";
 import QRScanner from "../components/QRScanner";
 import ActivityHistory from "../components/ActivityHistory";
+import EditAssetModal from "../components/EditAssetModal";
 import MobileBottomNav from "../components/MobileBottomNav";
 import Sidebar from "../components/sidebar";
 
@@ -30,8 +34,14 @@ export default function AdminDashboard({
   isDownloading,
   onClearAssets,
   isClearing,
+  onRefreshAssets,
 }) {
   const [activePage, setActivePage] = useState("dashboard");
+  const [selectedAsset, setSelectedAsset] =
+  useState(null);
+
+  const [showEditModal, setShowEditModal] =
+  useState(false);
   const [recentScansCount, setRecentScansCount] =
   useState(0);
   const getGreeting = () => {
@@ -116,6 +126,38 @@ useEffect(() => {
     clearInterval(interval);
 
 }, []);
+const handleEditAsset = async (
+  updates
+) => {
+
+  try {
+
+    await updateAsset(
+      selectedAsset.asset,
+      updates
+    );
+
+    setShowEditModal(false);
+
+    setSelectedAsset(null);
+
+    await onRefreshAssets(true);
+
+  } catch (error) {
+
+    console.error(
+      "Failed to update asset",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Failed to update asset"
+    );
+
+  }
+
+};
   return (
 
   <div className="dashboard-scroll flex flex-row gap-4 w-full min-w-0">
@@ -619,13 +661,17 @@ useEffect(() => {
                 </div>
               ) : (
                 <AssetTable
-                  assets={assets}
-                  headers={headers}
-                  onDownload={onDownload}
-                  isDownloading={isDownloading}
-                  onClearAssets={onClearAssets}
-                  isClearing={isClearing}
-                />
+  assets={assets}
+  headers={headers}
+  onDownload={onDownload}
+  isDownloading={isDownloading}
+  onClearAssets={onClearAssets}
+  isClearing={isClearing}
+  onEditAsset={(asset) => {
+    setSelectedAsset(asset);
+    setShowEditModal(true);
+  }}
+/>
               )}
 
             </div>
@@ -672,7 +718,15 @@ useEffect(() => {
 </div>
 
         </div>
-
+<EditAssetModal
+  isOpen={showEditModal}
+  asset={selectedAsset}
+  onClose={() => {
+    setShowEditModal(false);
+    setSelectedAsset(null);
+  }}
+  onSave={handleEditAsset}
+/>
   </div>
 
 );

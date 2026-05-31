@@ -446,6 +446,11 @@ function loadActivityHistory() {
 /**
  * SAVE ACTIVITY HISTORY
  */
+function clearActivityHistory() {
+
+  saveActivityHistory([]);
+
+}
 function saveActivityHistory(history) {
   try {
     fs.writeFileSync(
@@ -577,7 +582,84 @@ function clearCurrentBatch() {
 
 }
 
+function updateAsset(assetNumber, updates) {
+
+  const data = loadData();
+
+  const assetIndex = data.assets.findIndex(
+    asset =>
+      String(asset.asset).trim() ===
+      String(assetNumber).trim()
+  );
+
+  if (assetIndex === -1) {
+    throw new Error('Asset not found');
+  }
+
+  const asset = data.assets[assetIndex];
+
+  if (
+    updates.assetDescription !== undefined
+  ) {
+
+    asset.assetDescription =
+      updates.assetDescription;
+
+    asset['Asset Description'] =
+      updates.assetDescription;
+
+  }
+
+  if (
+  updates.correctRoom !== undefined
+) {
+
+  asset.correctRoom =
+    updates.correctRoom;
+
+  asset['CORRECT ROOM'] =
+    updates.correctRoom;
+
+}
+
+  if (
+    updates.remarks !== undefined
+  ) {
+
+    asset.remarks =
+      updates.remarks;
+
+    const remarksHeader =
+  getCurrentMonthRemarksHeader();
+
+Object.keys(asset).forEach(key => {
+
+  if (
+    normalizeHeader(key) ===
+    normalizeHeader(remarksHeader)
+  ) {
+    asset[key] = updates.remarks;
+  }
+
+});
+
+asset[remarksHeader] =
+  updates.remarks;
+
+  }
+
+  asset.updatedAt =
+    new Date().toISOString();
+
+  saveData(data);
+
+  return asset;
+
+}
+
 module.exports = {
+  clearActivityHistory,
+  updateAsset,
   getCurrentBatch,
 createNewBatch,
 clearCurrentBatch,

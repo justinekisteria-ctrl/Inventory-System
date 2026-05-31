@@ -9,7 +9,7 @@ getLastUpdated,
 downloadActivityReport,
 } from '../services/api';
 
-
+import { createPortal } from 'react-dom';
 
 export default function ActivityHistory({
   scannedAssets,
@@ -30,7 +30,32 @@ const [lastKnownUpdate, setLastKnownUpdate] =
   const [currentPage, setCurrentPage] =
   useState(1);
 
+  const [selectedActivity, setSelectedActivity] =
+  useState(null);
+
 const itemsPerPage = 25;
+
+const getActivityLabel = (
+  scanMethod
+) => {
+
+  switch (scanMethod) {
+
+    case 'EDIT':
+      return 'Asset Updated';
+
+    case 'MANUAL':
+      return 'Manual Scan';
+
+    case 'QR':
+      return 'QR Scan';
+
+    default:
+      return scanMethod || 'QR Scan';
+
+  }
+
+};
 
   useEffect(() => {
   loadHistory();
@@ -185,12 +210,16 @@ const paginatedHistory =
 
           <span
             className={
-              item.scanMethod === 'MANUAL'
-                ? 'bg-amber-50/80 text-amber-700 border border-white/60 backdrop-blur-xl px-3 py-1 rounded-full text-xs font-semibold shadow-[0_4px_12px_rgba(15,23,42,0.04)]'
-                : 'bg-emerald-50/80 text-emerald-700 border border-white/60 backdrop-blur-xl px-3 py-1 rounded-full text-xs font-semibold shadow-[0_4px_12px_rgba(15,23,42,0.04)]'
-            }
+  item.scanMethod === 'EDIT'
+    ? 'bg-blue-50/80 text-blue-700 border border-white/60 backdrop-blur-xl px-3 py-1 rounded-full text-xs font-semibold shadow-[0_4px_12px_rgba(15,23,42,0.04)]'
+    : item.scanMethod === 'MANUAL'
+    ? 'bg-amber-50/80 text-amber-700 border border-white/60 backdrop-blur-xl px-3 py-1 rounded-full text-xs font-semibold shadow-[0_4px_12px_rgba(15,23,42,0.04)]'
+    : 'bg-emerald-50/80 text-emerald-700 border border-white/60 backdrop-blur-xl px-3 py-1 rounded-full text-xs font-semibold shadow-[0_4px_12px_rgba(15,23,42,0.04)]'
+}
           >
-            {item.scanMethod || 'QR'}
+            {getActivityLabel(
+  item.scanMethod
+)}
           </span>
 
         </div>
@@ -236,6 +265,67 @@ const paginatedHistory =
   </p>
 </div>
 
+{item.changes?.length > 0 && (
+
+  <div className="mt-4 pt-4 border-t border-white/50">
+
+    <p className="text-xs uppercase tracking-wide text-slate-400 mb-3">
+  Audit Changes
+</p>
+
+    <div className="space-y-3">
+
+      {item.changes.map(
+  (change, index) => (
+
+    <div
+      key={index}
+      className="rounded-2xl bg-slate-50 border border-slate-200 p-4"
+    >
+
+      <h4 className="font-semibold text-slate-800 mb-3">
+        {change.field}
+      </h4>
+
+      <div className="space-y-3">
+
+        <div>
+
+          <span className="inline-flex px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium">
+            Before
+          </span>
+
+          <p className="mt-2 text-sm text-slate-700 break-words">
+            {change.oldValue || 'Empty'}
+          </p>
+
+        </div>
+
+        <div>
+
+          <span className="inline-flex px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+            After
+          </span>
+
+          <p className="mt-2 text-sm text-slate-700 break-words">
+            {change.newValue || 'Empty'}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  )
+)}
+
+    </div>
+
+  </div>
+
+)}
+
           <div className="pt-4 mt-4 border-t border-white/50 text-xs text-slate-400">
 
             {scanDate.toLocaleDateString()}
@@ -255,7 +345,8 @@ const paginatedHistory =
 </div>
         <div className="hidden md:block rounded-[28px] border border-white/50 bg-white/50 backdrop-blur-2xl shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
 
-          <table className="w-full border border-gray-200">
+          <div className="overflow-x-auto">
+  <table className="min-w-full border border-gray-200">
 
             <thead className="bg-white/80 backdrop-blur-xl">
 
@@ -281,6 +372,10 @@ const paginatedHistory =
                   Asset Description
                 </th>
 
+<th className="border px-3 py-4 text-center bg-gray-100 w-[110px]">
+  Changes
+</th>
+
                 <th className="border px-4 py-4 text-left bg-gray-100">
                   Serial Number
                 </th>
@@ -293,9 +388,9 @@ const paginatedHistory =
                   Time
                 </th>
 
-                <th className="border px-4 py-4 text-left bg-gray-100">
-  Scan Method
-</th>   
+                <th className="border px-3 py-4 text-center bg-gray-100 w-[130px]">
+  Activity Type
+</th>
 
               </tr>
 
@@ -326,24 +421,65 @@ const paginatedHistory =
 </td>
 
                     <td className="border px-4 py-2">
-                      {item.asset || item.Asset || '-'}
-                    </td>
+  {item.asset || item.Asset || '-'}
+</td>
 
-                    <td className="border px-4 py-2">
-                      {
-  item.assetDescription ||
-  item['Asset Description'] ||
-  '-'
-}
-                    </td>
+<td
+  className="border px-4 py-2 max-w-[250px]"
+  title={
+    item.assetDescription ||
+    item['Asset Description'] ||
+    '-'
+  }
+>
+  <div className="truncate">
+    {
+      item.assetDescription ||
+      item['Asset Description'] ||
+      '-'
+    }
+  </div>
+</td>
 
-                    <td className="border px-4 py-2">
-                      {
-  item.serialNumber ||
-  item['Serial number'] ||
-  '-'
-}
-                    </td>
+<td className="border px-2 py-2 text-center">
+
+  {item.changes?.length ? (
+
+    <button
+      onClick={() =>
+        setSelectedActivity(item)
+      }
+      className="px-2 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-medium hover:bg-blue-200 transition whitespace-nowrap"
+    >
+      View Changes
+    </button>
+
+  ) : (
+
+    <span className="text-slate-400">
+      —
+    </span>
+
+  )}
+
+</td>
+
+                    <td
+  className="border px-4 py-2 max-w-[180px]"
+  title={
+    item.serialNumber ||
+    item['Serial number'] ||
+    '-'
+  }
+>
+  <div className="truncate">
+    {
+      item.serialNumber ||
+      item['Serial number'] ||
+      '-'
+    }
+  </div>
+</td>
 
                     <td className="border px-4 py-2">
                       {scanDate.toLocaleDateString()}
@@ -353,16 +489,18 @@ const paginatedHistory =
                       {scanDate.toLocaleTimeString()}
                     </td>
 
-                    <td className="border px-4 py-2">
+                    <td className="border px-3 py-2 text-center whitespace-nowrap min-w-[140px]">
   <span
-    className={
-      item.scanMethod === 'MANUAL'
-        ? 'bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold'
-        : 'bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold'
-    }
-  >
-    {item.scanMethod || 'QR'}
-  </span>
+  className={
+    item.scanMethod === 'EDIT'
+      ? 'text-blue-600 font-medium'
+      : item.scanMethod === 'MANUAL'
+      ? 'text-amber-600 font-medium'
+      : 'text-green-600 font-medium'
+  }
+>
+  {getActivityLabel(item.scanMethod)}
+</span>
 </td>
 
                   </tr>
@@ -372,6 +510,8 @@ const paginatedHistory =
             </tbody>
 
           </table>
+
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t bg-white">
 
@@ -419,6 +559,84 @@ const paginatedHistory =
       </>
 
       )}
+
+{selectedActivity &&
+  createPortal(
+
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60">
+
+    <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl p-6 relative top-12">
+
+      <div className="flex justify-between items-center mb-6">
+
+        <div>
+
+          <h2 className="text-2xl font-bold text-slate-800">
+            Asset Changes
+          </h2>
+
+          <p className="text-slate-500">
+            Asset #{selectedActivity.asset}
+          </p>
+
+        </div>
+
+        <button
+          onClick={() =>
+            setSelectedActivity(null)
+          }
+          className="text-slate-500 hover:text-slate-800"
+        >
+          ✕
+        </button>
+
+      </div>
+
+      <div className="space-y-4">
+
+        {selectedActivity.changes?.map(
+          (change, index) => (
+
+            <div
+              key={index}
+              className="border rounded-2xl p-4 bg-slate-50"
+            >
+
+              <div className="font-semibold text-slate-700 mb-3">
+                {change.field}
+              </div>
+
+              <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+
+                <div className="flex-1 bg-red-50 text-red-700 rounded-lg px-3 py-2 break-words">
+                  {change.oldValue || 'Empty'}
+                </div>
+
+                <div className="text-slate-400 text-xl">
+                  →
+                </div>
+
+                <div className="flex-1 bg-green-50 text-green-700 rounded-lg px-3 py-2 break-words">
+                  {change.newValue || 'Empty'}
+                </div>
+
+              </div>
+
+            </div>
+
+          )
+        )}
+
+      </div>
+
+        </div>
+
+  </div>,
+
+  document.body
+
+)}
+
 
     </div>
   );

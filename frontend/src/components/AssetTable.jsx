@@ -23,6 +23,7 @@ export default function AssetTable({
   isLoading,
   onClearAssets,
   isClearing,
+  onEditAsset,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
@@ -663,24 +664,38 @@ const paginatedAssets =
                     </td>
                     <td className="px-4 py-3 text-center">
 
-  <button
-    onClick={() =>
-      setSelectedQRAsset(asset)
-    }
-    className="min-w-[110px] px-3 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition text-sm font-semibold flex items-center justify-center"
-  >
-    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+  <div className="flex flex-col gap-2 items-center">
 
-  <img
-    src={qrIcon}
-    alt="QR"
-    className="w-4 h-4 flex-shrink-0"
-  />
+    <button
+      onClick={() =>
+        setSelectedQRAsset(asset)
+      }
+      className="min-w-[110px] px-3 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition text-sm font-semibold flex items-center justify-center"
+    >
+      <div className="flex items-center justify-center gap-2 whitespace-nowrap">
 
-  <span>Generate QR</span>
+        <img
+          src={qrIcon}
+          alt="QR"
+          className="w-4 h-4 flex-shrink-0"
+        />
 
-</div>
-  </button>
+        <span>Generate QR</span>
+
+      </div>
+
+    </button>
+
+    <button
+      onClick={() =>
+        onEditAsset?.(asset)
+      }
+      className="min-w-[110px] px-3 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition text-sm font-semibold"
+    >
+      Edit
+    </button>
+
+  </div>
 
 </td>
                     {tableColumns.map(column => {

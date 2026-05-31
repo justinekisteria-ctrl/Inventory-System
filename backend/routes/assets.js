@@ -3,6 +3,7 @@
 
 const express = require('express');
 const {
+  clearActivityHistory,
   getAllAssets,
   getAssetStatistics,
   getHeaders,
@@ -12,7 +13,9 @@ const {
   updateHeaders,
   upsertAsset,
   deleteAllAssets,
-clearCurrentBatch,
+  clearCurrentBatch,
+  updateAsset,
+  addActivityHistory,
 } = require('../db/database');
 const {
   getMonthlyStatusHeader,
@@ -232,6 +235,8 @@ router.delete('/', authenticateToken, requireAdmin, (req, res) => {
 
 clearCurrentBatch();
 
+clearActivityHistory();
+
 updateLastUpdated();
 
 return setTimeout(() => {
@@ -247,6 +252,131 @@ return setTimeout(() => {
       message: error.message || 'Failed to clear assets',
     });
   }
+});
+
+router.put(
+  '/:asset',
+  authenticateToken,
+  requireAdmin,
+  (req, res) => {
+
+  try {
+
+  const updatedAsset =
+    updateAsset(
+      req.params.asset,
+      req.body
+    );
+    const changes = [];
+
+const previousValues =
+  req.body.previousValues || {};
+  if (
+  previousValues.assetDescription !==
+  updatedAsset.assetDescription
+) {
+
+  changes.push({
+
+    field:
+      'Asset Description',
+
+    oldValue:
+      previousValues.assetDescription,
+
+    newValue:
+      updatedAsset.assetDescription,
+
+  });
+
+}
+
+if (
+  previousValues.remarks !==
+  updatedAsset.remarks
+) {
+
+  changes.push({
+
+    field:
+      'Remarks',
+
+    oldValue:
+      previousValues.remarks,
+
+    newValue:
+      updatedAsset.remarks,
+
+  });
+
+}
+
+if (
+  previousValues.correctRoom !==
+  updatedAsset.correctRoom
+) {
+
+  changes.push({
+
+    field:
+      'Correct Room',
+
+    oldValue:
+      previousValues.correctRoom,
+
+    newValue:
+      updatedAsset.correctRoom,
+
+  });
+
+}
+
+  addActivityHistory({
+changes,
+    employeeId:
+      req.user.employeeId,
+
+    userName:
+      req.user.name,
+
+    department:
+      req.user.department,
+
+    asset:
+      updatedAsset.asset,
+
+    assetDescription:
+      updatedAsset.assetDescription,
+
+    serialNumber:
+      updatedAsset.serialNumber,
+
+    scanMethod:
+      'EDIT',
+
+    activityType:
+      'ASSET_UPDATED',
+
+    scannedAt:
+      new Date(),
+
+  });
+  updateLastUpdated();
+
+  res.json({
+    success: true,
+    asset: updatedAsset,
+  });
+
+} catch (error) {
+
+  res.status(400).json({
+    success: false,
+    message: error.message,
+  });
+
+}
+
 });
 
 module.exports = router;
