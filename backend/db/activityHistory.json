@@ -1,1 +1,31 @@
-[]
+[
+  {
+    "id": 1780240738114,
+    "changes": [
+      {
+        "field": "Asset Description",
+        "oldValue": "AL4018IP Touch Set SN:H0500626533566",
+        "newValue": "TEST"
+      },
+      {
+        "field": "Remarks",
+        "oldValue": "",
+        "newValue": "NOT_WORKING"
+      },
+      {
+        "field": "Correct Room",
+        "oldValue": "SAFETY",
+        "newValue": "CCTV"
+      }
+    ],
+    "employeeId": "troy",
+    "userName": "troy caang",
+    "department": "Administration",
+    "asset": "60010013672",
+    "assetDescription": "TEST",
+    "serialNumber": "H0500626533566",
+    "scanMethod": "EDIT",
+    "activityType": "ASSET_UPDATED",
+    "scannedAt": "2026-05-31T15:18:58.114Z"
+  }
+]

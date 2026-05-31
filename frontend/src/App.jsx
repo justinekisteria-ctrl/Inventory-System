@@ -1,6 +1,8 @@
 // frontend/src/App.jsx
 // Main application component
 
+import EditAssetModal from './components/EditAssetModal';
+
 import {
   useState,
   useEffect,
@@ -25,7 +27,8 @@ import {
   clearAssets,
   addAsset,
   loginUser,
-  getLastUpdated
+  getLastUpdated,
+  updateAsset
 } from './services/api';
 
 const fallbackAssetHeaders = [
@@ -152,6 +155,11 @@ export default function App() {
   const [isAddingAsset, setIsAddingAsset] = useState(false);
 
   const [newAssetForm, setNewAssetForm] = useState({});
+  const [selectedAsset, setSelectedAsset] =
+  useState(null);
+
+const [showEditModal, setShowEditModal] =
+  useState(false);
   const [newAssetScannedValue, setNewAssetScannedValue] = useState('');
 
   const [showNewAssetConfirm, setShowNewAssetConfirm] = useState(false);
@@ -487,6 +495,39 @@ setIsAuthenticating(false);
   const handleScanError = (message) => {
     showNotification(`❌ Scan error: ${message}`, 'error');
   };
+
+  const handleEditAsset = async (
+  updates
+) => {
+
+  try {
+
+    await updateAsset(
+      selectedAsset.asset,
+      updates
+    );
+
+    setShowEditModal(false);
+
+    setSelectedAsset(null);
+
+    await loadAssets(true);
+
+  } catch (error) {
+
+    console.error(
+      'Failed to update asset',
+      error
+    );
+
+    alert(
+      error.message ||
+      'Failed to update asset'
+    );
+
+  }
+
+};
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -1262,6 +1303,10 @@ const getDropdownOptions = (header) => {
   onDownload={handleDownload}
   isDownloading={isDownloading}
   isLoading={isLoading}
+  onEditAsset={(asset) => {
+    setSelectedAsset(asset);
+    setShowEditModal(true);
+  }}
 />
               )}
 
@@ -1460,6 +1505,16 @@ const getDropdownOptions = (header) => {
 
       </footer>
   
+<EditAssetModal
+  isOpen={showEditModal}
+  asset={selectedAsset}
+  onClose={() => {
+    setShowEditModal(false);
+    setSelectedAsset(null);
+  }}
+  onSave={handleEditAsset}
+/>
+
     </div>
   );
 }

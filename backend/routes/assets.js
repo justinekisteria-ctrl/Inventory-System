@@ -257,7 +257,6 @@ return setTimeout(() => {
 router.put(
   '/:asset',
   authenticateToken,
-  requireAdmin,
   (req, res) => {
 
   try {
