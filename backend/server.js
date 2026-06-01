@@ -129,6 +129,24 @@ app.use((err, req, res, next) => {
 // ============================================
 
 app.listen(PORT, '0.0.0.0', () => {
+
+  console.log(
+    'TIMEZONE:',
+    Intl.DateTimeFormat()
+      .resolvedOptions()
+      .timeZone
+  );
+
+  console.log(
+    'LOCAL TIME:',
+    new Date().toString()
+  );
+
+  console.log(
+    'MONTH:',
+    new Date().getMonth() + 1
+  );
+
   console.log(`
 ╔════════════════════════════════════════════╗
 ║  Asset Inventory System - Backend Running  ║
@@ -136,6 +154,7 @@ app.listen(PORT, '0.0.0.0', () => {
 ║  Status: Ready to accept requests          ║
 ╚════════════════════════════════════════════╝
   `);
+
 });
 
 // Graceful shutdown
